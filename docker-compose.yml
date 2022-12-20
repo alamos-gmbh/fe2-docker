@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+  fe2_database:
+    image: mongo:3.6.23
+    container_name: fe2_database
+    logging:
+      driver: none
+    ports:
+      - 27017
+    volumes:
+      - ./data/fe2/config/database/configdb:/data/configdb
+      - ./data/fe2/config/database:/data/db
+    restart: unless-stopped
+  fe2_app:
+    image: alamosgmbh/fe2:2.28.294
+    container_name: fe2_app
+    env_file:
+      - config.env
+    ports:
+      - 83
+    volumes:
+      - ./data/fe2/logs:/Logs
+      - ./data/fe2/config:/Config
+      - ./data/cacerts:/usr/lib/jvm/jre/lib/security/cacerts
+      - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id
+      # please check host machine's timezone + localtime otherwise calendar will display wrong times
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    healthcheck:
+      test: curl --fail http://localhost:83/ || exit 1
+      interval: 60s
+      retries: 3
+      start_period: 60s
+      timeout: 10s
+    links:
+      - fe2_database
+  fe2_nginx:
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    container_name: fe2_nginx
+    env_file:
+      - config.env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt  
+    restart: unless-stopped

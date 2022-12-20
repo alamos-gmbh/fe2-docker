@@ -1,0 +1,11 @@
+data/fe2/config/data/*
+!data/fe2/config/data/.gitkeep
+data/fe2/config/database/
+data/fe2/config/sound/
+data/fe2/config/*.*
+data/fe2/logs/
+data/certbot/
+fe2/*.jar
+fe2/files/
+backend/
+config.env
