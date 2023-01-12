@@ -1,0 +1,3 @@
+# every day at 5pm - replace username and path
+# must be run as root -> sudo crontab -e
+0 17 * * * /home/username/scripts/docker-fe2/backup-fe2-docker.sh > /home/username/scripts/docker-fe2/backup.log 2>&1

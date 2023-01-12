@@ -1,0 +1,12 @@
+.git
+data/fe2/logs
+mongod.lock
+WiredTiger.lock
+WiredTiger.turtle
+de_alamos_fe2.
+local.
+storage.bson
+data/fe2/config/database/journal
+*.wt
+WiredTiger
+diagnostic.data
