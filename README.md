@@ -8,6 +8,8 @@
 5. adjust all variables in config.env
 6. docker-compose up (-d)
 
+:warning: Do not forget to change the password of the Admin account. This is the first thing to do upon first login to the web interface :warning:
+
 ## SSL Configuration
 
 SSL encryption can be enabled by changing the variable CERTBOT_ENABLED (false|true) inside `config.env`
@@ -35,6 +37,9 @@ The following prerequisites must be met:
 This DNS A record must be configured inside `config.env` file as variable `CERTBOT_DOMAIN`. Moreover a valid email address must be configured for let's encrypt information emails as variable `CERTBOT_EMAIL`.
 
 :warning: Do not enter a dummy address here. Let's encrypt will only send important information.
+
+:hourglass: After starting an SSL enabled FE2 docker instance for the first time, it takes about 15-30 minutes to generate encryption specific parameters (DH parameters). This is normal. The progress can be visualized using `docker logs -f fe2_nginx`
+:bulb: During this time, the FE2 web interface won't be accessible.
 
 ### 
 
