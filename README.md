@@ -39,6 +39,7 @@ This DNS A record must be configured inside `config.env` file as variable `CERTB
 :warning: Do not enter a dummy address here. Let's encrypt will only send important information.
 
 :hourglass: After starting an SSL enabled FE2 docker instance for the first time, it takes about 15-30 minutes to generate encryption specific parameters (DH parameters). This is normal. The progress can be visualized using `docker logs -f fe2_nginx`
+
 :bulb: During this time, the FE2 web interface won't be accessible.
 
 ### 
@@ -59,9 +60,9 @@ The following must be configured for multiple FE2 docker containers on the same 
 
 One possible scenario among others: Create a new directory for each deployment and checkout the git repository to each, then setup the following:
 
-- Unique activation names: `config.env`: Use a unique `FE2_ACTIVATION_NAME` variable for each deployment. This is necessary for activation purposes.
-- SSL: `config.env`: The variable `CERTBOT_ENABLED` must be set to `false` (or at most 1 container is allowed to run with certbot enabled using default ports 80 + 443)
-- Unique container names: In each `docker-compose.yml` every contained `container_name` declaration must be adjusted to a UNIQUE name, e.g. 
+- **Unique activation names:** `config.env`: Use a unique `FE2_ACTIVATION_NAME` variable for each deployment. This is necessary for activation purposes.
+- **SSL:** `config.env`: The variable `CERTBOT_ENABLED` must be set to `false` (or at most 1 container is allowed to run with certbot enabled using default ports 80 + 443)
+- **Unique container names:** In each `docker-compose.yml` every contained `container_name` declaration must be adjusted to a UNIQUE name, e.g. 
   - fe2_database -> fe2_database_2
   - fe2_app -> fe2_app_2
   - fe2_nginx -> fe2_nginx_2
@@ -69,7 +70,7 @@ One possible scenario among others: Create a new directory for each deployment a
   otherwise `docker-compose up / down` calls will interfere and stop unintended containers. 
   
   Suggestion: Rename every `container_name` inside the first `docker-compose.yml` file to '_1', inside the second compose file to '_2', etc. Check with `docker ps` that all intended containers are running, using the adjusted container names.
-- Unique port combinations: In each `docker-compose.yml` file, setup a unique port combination, for example:
+- **Unique port combinations:** In each `docker-compose.yml` file, setup a unique port combination, for example:
   - First container: 
     - "80:80" 
     - "443:443"
