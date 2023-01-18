@@ -47,3 +47,39 @@ This DNS A record must be configured inside `config.env` file as variable `CERTB
 Inside 'scripts/backup' several files can be found to perform backup and restore tasks. A cron example is also contained. Copy all files locally, including 'rsync_ignore.txt'. Afterwards follow the instructions inside the scripts to get started.
 
 :warning: Do not edit the script files in the cloned repository, otherwise they will be overwritten by a future git pull. Always reference (e.g. cron job) the copied and modified files.
+
+## Advanced Usage
+Advanced usage / deployment options for professional users. 
+
+:warning: Requires profound knowledge of running docker deployments. 
+
+:bulb: No official support is offered for these use cases. 
+### Running multiple containers on same docker host
+The following must be configured for multiple FE2 docker containers on the same host:
+
+One possible scenario among others: Create a new directory for each deployment and checkout the git repository to each, then setup the following:
+
+- Unique activation names: `config.env`: Use a unique `FE2_ACTIVATION_NAME` variable for each deployment. This is necessary for activation purposes.
+- SSL: `config.env`: The variable `CERTBOT_ENABLED` must be set to `false` (or at most 1 container is allowed to run with certbot enabled using default ports 80 + 443)
+- Unique container names: In each `docker-compose.yml` every contained `container_name` declaration must be adjusted to a UNIQUE name, e.g. 
+  - fe2_database -> fe2_database_2
+  - fe2_app -> fe2_app_2
+  - fe2_nginx -> fe2_nginx_2
+  
+  otherwise `docker-compose up / down` calls will interfere and stop unintended containers. 
+  
+  Suggestion: Rename every `container_name` inside the first `docker-compose.yml` file to '_1', inside the second compose file to '_2', etc. Check with `docker ps` that all intended containers are running, using the adjusted container names.
+- Unique port combinations: In each `docker-compose.yml` file, setup a unique port combination, for example:
+  - First container: 
+    - "80:80" 
+    - "443:443"
+  - Second container:
+    - "81:80" 
+    - "444:443"
+  - Third container:
+    - "82:80"
+    - "445:443"
+  - etc.
+
+  The left hand side of the port definition must be not already in use by the system (check with netstat; see above), thus in our example the ports 80-82;443-445 must NOT already be used by any process of the system.
+
