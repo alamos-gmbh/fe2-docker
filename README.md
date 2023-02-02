@@ -13,6 +13,22 @@
 **This project / running FE2 as docker container is an experimental feature that comes without any support. When a bug is detected we're happy to know about it as a support ticket, but we cannot assist you with running your docker deployments.**
 
 :raising_hand_man: This project addresses professional users with profound Linux and Docker knowledge.
+
+### Environment
+
+Running this containers requires a "real" linux environment (either physical or virtual, see below).
+
+Tests were performed on Ubuntu Server 20.04 LTS and 22.04 LTS
+
+The following versions were installed
+- Docker version 20.10.23
+- docker-compose version 1.29.2
+- git version 2.34.1
+
+:bulb: We recommend running Ubuntu Server
+
+:warning: Docker Desktop for Windows (Windows Linux Subsystem (WSL2)) is not supported.
+
 ### Major Upgrades / Minor Upgrades
 
 :warning: Major upgrades are not supported and will lead to errors.
