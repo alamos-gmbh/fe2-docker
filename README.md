@@ -1,5 +1,40 @@
 # FE2 Docker
 
+## Important hints
+### Support
+:de:
+
+** Dieses Projekt / der Betrieb von FE2 als Docker Container ist ein experimentelles Feature, für das keinerlei Support-Anspruch besteht. Wir freuen uns über Bug-Reports die ins Ticket-System eingestellt werden, sollte ein Fehler auffallen. Allerdings besteht kein Anspruch auf Behebung. Darüber hinaus ist es uns leider unmöglich beim Betrieb der Docker-Umgebung zu unterstützen. **
+
+:raising_hand_man: Dieses Projekt richtet sich an professionelle Nutzer mit fundierten Linux / Docker Kenntnissen.
+
+:us:
+
+**This project / running FE2 as docker container is an experimental feature that comes without any support. When a bug is detected we're happy to know about it as a support ticket, but we cannot assist you with running your docker deployments. **
+
+:raising_hand_man: This project addresses professional users with profound Linux and Docker knowledge.
+### Major Upgrades / Minor Upgrades
+
+:warning: Major upgrades are not supported and will lead to errors.
+Example:
+When a `docker-compose.yml` file specifies version 2.28, it's not supported to upgrade to 2.31 directly by just changing version information.
+
+The upgrade path is:
+
+- 2.28 -> 2.29
+- 2.29 -> 2.30
+- 2.30 -> 2.31
+
+A major upgrade can also affect the other containers specified in the `docker-compose.yml`file (most likely the mongoDB database version). Before upgrading always check the corresponding git branch of this project. We'll offer compatible environments on release branches, e.g. release/2.28, release/2.29 etc.
+
+:bulb: Upgrades within major releases (aka minor upgrades) are supported, for example:
+
+Upgrading from 2.28.**351** to 2.28.**406** by just changing fe2_app's image version followed by a `docker-compose down && docker-compose up -d` is fine.
+We'll make sure that these upgrades work flawlessly.
+
+### Using existing Windows configuration
+:window: While it **might** work to copy all files from a windows installation over, it's not supported, so please don't ask for help after doing so.
+
 ## Start via docker-compose.yml
 1. clone the repository to a local folder, e.g. /home/username/docker
 2. cd to fe-docker
