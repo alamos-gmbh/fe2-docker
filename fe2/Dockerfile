@@ -1,6 +1,13 @@
-FROM amazoncorretto:17
+FROM amazoncorretto:17-alpine
 
 LABEL Alamos GmbH <kontakt@alamos-gmbh.com>
+
+# add nano text editor as alpine only contains vi
+RUN apk add --no-cache nano
+# add network tools dig and nslookup
+RUN apk add --no-cache bind-tools
+# htop process manager
+RUN apk add --no-cache htop
 
 COPY backend/target/FE2.jar fe2.jar
 COPY backend/target/FE2/files files
