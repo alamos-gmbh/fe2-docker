@@ -13,7 +13,7 @@ services:
       - ./data/fe2/config/database:/data/db
     restart: unless-stopped
   fe2_app:
-    image: alamosgmbh/fe2:2.28.408
+    image: alamosgmbh/fe2:2.28.443
     container_name: fe2_app
     env_file:
       - config.env
@@ -22,7 +22,7 @@ services:
     volumes:
       - ./data/fe2/logs:/Logs
       - ./data/fe2/config:/Config
-      - ./data/cacerts:/usr/lib/jvm/jre/lib/security/cacerts
+      - ./data/cacerts:/usr/lib/jvm/default-jvm/jre/lib/security/cacerts
       - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id
       # please check host machine's timezone + localtime otherwise calendar will display wrong times
       - /etc/timezone:/etc/timezone:ro
