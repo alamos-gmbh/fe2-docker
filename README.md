@@ -95,7 +95,7 @@ This DNS A record must be configured inside `config.env` file as variable `CERTB
 
 ## Emergency access to the FE2 http port (via 64112)
 
-When you're locked out, emergency access to FE2 is possible via port 64112 after activation in `docker-compose.yml`. Change the line - 64112 to "64112:64112" (port mapping for the fe2_app service NOT fe2_nginx) save and restart with `docker-compose down && docker-compose up -d`
+When you're locked out, emergency access to FE2 is possible via port 64112 after activation in `docker-compose.yml`. Change the line - 64112 to - "64112:64112" (port mapping for the fe2_app service NOT fe2_nginx) save and restart with `docker-compose down && docker-compose up -d`
 
 Open a browser of your choice and navigate to http://{DOCKER_HOST_IP}:64112
 
