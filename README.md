@@ -93,7 +93,15 @@ This DNS A record must be configured inside `config.env` file as variable `CERTB
 
 :bulb: During this time, the FE2 web interface won't be accessible.
 
-### 
+## Emergency access to the FE2 http port (via 64112)
+
+When you're locked out, emergency access to FE2 is possible via port 64112 after activation in `docker-compose.yml`. Change the line - 64112 to "64112:64112" (port mapping for the fe2_app service NOT fe2_nginx) save and restart with `docker-compose down && docker-compose up -d`
+
+Open a browser of your choice and navigate to http://{DOCKER_HOST_IP}:64112
+
+:bulb: The emergency binding will not use https://
+
+:warning: This exposes port 64112. If no firewall appliance prevents access, the port will be publicly accessible. UFW or iptables firewall does not prevent access (unless explicitly configured, docker bypasses UFW / iptables). More info about that behavior can be found [here](https://www.techrepublic.com/article/how-to-fix-the-docker-and-ufw-security-flaw/).
 
 ## Backup Scripts
 Inside 'scripts/backup' several files can be found to perform backup and restore tasks. A cron example is also contained. Copy all files locally, including 'rsync_ignore.txt'. Afterwards follow the instructions inside the scripts to get started.
