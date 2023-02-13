@@ -19,6 +19,8 @@ services:
       - config.env
     ports:
       - 83
+      # Emergency access to FE2. Change to "64112:64112" to enable direct access to FE2 
+      - 64112
     volumes:
       - ./data/fe2/logs:/Logs
       - ./data/fe2/config:/Config
