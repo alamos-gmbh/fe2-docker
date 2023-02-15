@@ -17,6 +17,33 @@ BACKUP_FOLDER_TO_RESTORE=29-Dec-2022_14-00 #changeme
 
 ########################## Variables end
 
+## determine which docker-compose command to use - start
+docker compose version > /dev/null 2>&1
+mod_compose_avail=$?
+docker-compose version > /dev/null 2>&1
+old_compose_avail=$?
+
+alias compose_local='docker-compose'
+
+if [ ${mod_compose_avail} -eq 1 ] && [ ${old_compose_avail} -eq 1 ];
+then
+  echo "No compatible docker-compose (docker compose) command found. Cannot continue!"
+  exit 1
+fi
+
+if [ ${mod_compose_avail} -eq 1 ];
+then
+  echo "Modern docker compose command NOT available. Using classic docker-compose for execution."
+else
+  echo "Modern docker compose command available. Using it for execution."
+  alias compose_local='docker compose'
+fi
+
+echo "Using docker compose:" `compose_local version`
+
+## determine which docker-compose command to use - end
+
+
 RESTORE_DIR=$BACKUP_DIR/$BACKUP_FOLDER_TO_RESTORE
 RESTORE_DIR_DATA=$RESTORE_DIR/data
 DB_DUMP_FILE=$RESTORE_DIR/fe2-dump.gz
@@ -58,17 +85,17 @@ cd $FE2_DOCKER_DIR
 echo "Now running in: `pwd`"
 
 echo "Stopping FE2"
-docker-compose stop fe2_app
+compose_local stop fe2_app
 
 echo "Restoring files"
 rsync -auv $RESTORE_DIR_DATA/ $FE2_DOCKER_DIR
 
-docker-compose up -d fe2_database
+compose_local up -d fe2_database
 
 echo "Restoring database"
 
 cd $FE2_DOCKER_DIR
-docker-compose exec -T $DB_SVC_NAME sh -c 'mongorestore --drop --gzip --archive' < $DB_DUMP_FILE
+compose_local exec -T $DB_SVC_NAME sh -c 'mongorestore --drop --gzip --archive' < $DB_DUMP_FILE
 
 echo "Starting FE2"
-docker-compose up -d
+compose_local up -d

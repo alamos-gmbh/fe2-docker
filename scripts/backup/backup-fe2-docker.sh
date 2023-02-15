@@ -38,6 +38,32 @@ fi
 
 #### functions end
 
+## determine which docker-compose command to use - start
+docker compose version > /dev/null 2>&1
+mod_compose_avail=$?
+docker-compose version > /dev/null 2>&1
+old_compose_avail=$?
+
+alias compose_local='docker-compose'
+
+if [ ${mod_compose_avail} -eq 1 ] && [ ${old_compose_avail} -eq 1 ];
+then
+  echo "No compatible docker-compose (docker compose) command found. Cannot continue!"
+  exit 1
+fi
+
+if [ ${mod_compose_avail} -eq 1 ];
+then
+  echo "Modern docker compose command NOT available. Using classic docker-compose for execution."
+else
+  echo "Modern docker compose command available. Using it for execution."
+  alias compose_local='docker compose'
+fi
+
+echo "Using docker compose:" `compose_local version`
+
+## determine which docker-compose command to use - end
+
 EXECUTION_TIME=$(date +'%d-%b-%Y_%H-%M')
 TARGET_DIR=$BACKUP_DIR/$EXECUTION_TIME
 
@@ -60,7 +86,7 @@ echo "Executing FE2 docker backup at $EXECUTION_TIME"
 
 cd $FE2_DOCKER_DIR
 echo ">>> Backing up database <<<"
-docker-compose exec -T $DB_SVC_NAME sh -c 'mongodump --gzip --archive' > $TARGET_DIR/fe2-dump.gz
+compose_local exec -T $DB_SVC_NAME sh -c 'mongodump --gzip --archive' > $TARGET_DIR/fe2-dump.gz
 
 DB_DUMP_EXIT_CODE=$?
 
