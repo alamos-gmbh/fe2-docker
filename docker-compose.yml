@@ -36,7 +36,7 @@ services:
       retries: 3
       start_period: 60s
       timeout: 10s
-    links:
+    depends_on:
       - fe2_database
   fe2_nginx:
     build:
