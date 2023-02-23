@@ -55,9 +55,10 @@ We'll make sure that these upgrades work flawlessly.
 1. clone the repository to a local folder, e.g. /home/username/docker
 2. cd to fe-docker
 3. copy config.template/data/logback.xml to data/fe2/config/data/
-4. copy or move config.env.example to config.env
-5. adjust all variables in config.env
-6. docker-compose up (-d)
+4. copy docker-compose.yml.template to docker-compose.yml
+5. copy or move config.env.example to config.env
+6. adjust all variables in config.env
+7. docker-compose up (-d)
 
 :warning: Do not forget to change the password of the Admin account. This is the first thing to do upon first login to the web interface :warning:
 
