@@ -9,3 +9,4 @@ fe2/*.jar
 fe2/files/
 backend/
 config.env
+docker-compose.yml
