@@ -25,6 +25,8 @@ Many cheap vServers make use of shared resources and might lead to poor user exp
 :star: For many years we made good experience with [netcup](https://www.netcup.de/vserver/) and their root server offerings.
 They combine the advantages of dedicated root servers with virtual servers. CPU and memory are not shared with other customers, which leads to a very high performance.
 
+![netcup vservers](https://www.netcup.de/static/assets/images/promotion/netcup-setC-234x60.png)
+
 Tests were performed on Ubuntu Server 20.04 LTS and 22.04 LTS
 
 The following versions were installed
