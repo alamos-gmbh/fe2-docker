@@ -18,6 +18,13 @@
 
 Running this containers requires a "real" linux environment (either physical or virtual, see below).
 
+We recommend either a real root server or a "pseudo" root server offering dedicated memory and CPU resources.
+
+Many cheap vServers make use of shared resources and might lead to poor user experience / reliability.
+
+:star: For many years we made good experience with [netcup](https://www.netcup.de/vserver/) and their root server offerings.
+They combine the advantages of dedicated root servers with virtual servers. CPU and memory are not shared with other customers, which leads to a very high performance.
+
 Tests were performed on Ubuntu Server 20.04 LTS and 22.04 LTS
 
 The following versions were installed
