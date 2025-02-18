@@ -15,6 +15,7 @@ services:
   fe2_app:
     image: alamosgmbh/fe2:2.36.0-RC
     container_name: fe2_app
+    hostname: CHANGE_ME
     env_file:
       - config.env
     ports:
