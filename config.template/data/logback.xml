@@ -12,10 +12,10 @@
 
     <appender name="FILE"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/fe2/logs/log.txt</file>
+        <file>/Logs/log.txt</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>/fe2/logs/log.%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
+            <fileNamePattern>/Logs/log.%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy">
                 <!-- or whenever the file size reaches 3MB -->
@@ -31,14 +31,14 @@
         </encoder>
     </appender>
     <appender name="FILE_TRACKING" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/fe2/logs/tracking/log.txt</file>
+        <file>/Logs/tracking/log.txt</file>
         <encoder>
             <pattern>%d{dd.MM.yyyy} - %d{HH:mm:ss.SSS} %-5level [%thread] %logger{0} - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>/fe2/logs/tracking/tracking_log.%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
+            <fileNamePattern>/Logs/tracking/tracking_log.%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy">
                 <!-- or whenever the file size reaches 3MB -->
@@ -49,10 +49,10 @@
     </appender>
 
     <appender name="FILE_TETRA" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/fe2/logs/input/TETRA/log.txt</file>
+        <file>/Logs/input/TETRA/log.txt</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>/fe2/logs/input/TETRA/log.%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
+            <fileNamePattern>/Logs/input/TETRA/log.%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy">
                 <!-- or whenever the file size reaches 3MB -->
