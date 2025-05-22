@@ -1,23 +1,24 @@
 <configuration>
 
-<conversionRule conversionWord="fe2" 
-                 converterClass="de.alamos.fe2.server.utils.logging.LoggingAlarmDataConverter" />
+    <conversionRule conversionWord="fe2"
+                    converterClass="de.alamos.fe2.server.utils.logging.LoggingAlarmDataConverter"/>
 
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <Pattern>%d{dd.MM.yyyy} - %d{HH:mm:ss.SSS} %-5level |%fe2| [%thread]  %logger{0} - %msg%n</Pattern>
-      <charset>UTF-8</charset>
-    </encoder>
-  </appender>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>%d{dd.MM.yyyy} - %d{HH:mm:ss.SSS} %-5level |%fe2| [%thread] %logger{0} - %msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
 
-   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/Logs/log.txt</file> 
+    <appender name="FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/Logs/log.txt</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
             <fileNamePattern>/Logs/log.%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
-                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <!-- or whenever the file size reaches 1MB -->
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy">
+                <!-- or whenever the file size reaches 3MB -->
                 <maxFileSize>3MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
             <!-- keep 30 days' worth of history -->
@@ -25,43 +26,96 @@
         </rollingPolicy>
 
         <encoder>
-	<Pattern>%d{dd.MM.yyyy} - %d{HH:mm:ss.SSS} %-5level |%fe2| [%thread] %logger{0} - %msg%n</Pattern>
-	<charset>UTF-8</charset>
-		</encoder>
-    </appender> 
+            <Pattern>%d{dd.MM.yyyy} - %d{HH:mm:ss.SSS} %-5level |%fe2| [%thread] %logger{0} - %msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <appender name="FILE_TRACKING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/Logs/tracking/log.txt</file>
+        <encoder>
+            <pattern>%d{dd.MM.yyyy} - %d{HH:mm:ss.SSS} %-5level [%thread] %logger{0} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>/Logs/tracking/tracking_log.%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy">
+                <!-- or whenever the file size reaches 3MB -->
+                <maxFileSize>3MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
 
- <logger name="com.hierynomus" level="WARN"/>
- <logger name="uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J" level="WARN"/>
- <logger name="org.eclipse.jetty" level="WARN"/>
- <logger name="org.mongodb.driver" level="WARN"/>
- <logger name="org.springframework" level="WARN"/>
- <logger name="org.mongodb.driver.cluster" level="WARN"/>
- <logger name="org.apache.http.impl" level="WARN"/>
- <logger name="org.apache.http.wire" level="WARN"/>
- <logger name="org.apache.http.headers" level="WARN"/>   
- <logger name="org.apache.http.client" level="WARN"/>
- <logger name="net.sf.jasperreports" level="WARN"/>
- <logger name="org.apache.commons.digester" level="WARN"/>
- <logger name="org.apache.commons.beanutils" level="WARN"/>
- <logger name="org.apache.fontbox.util.autodetect.FontFileFinder" level="WARN"/>
- <logger name="org.apache.pdfbox.pdmodel.font.FileSystemFontProvider" level="WARN"/>
- <logger name="com.google.api.client.util.store.FileDataStoreFactory" level="ERROR" />
- <logger name="org.apache.pdfbox.io.ScratchFileBuffer" level="WARN"/>
- <logger name="com.google.firebase.database.connection" level="WARN"/>
- <logger name="uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4JInitialiser" level="WARN"/>
- <logger name="org.eclipse.jetty" level="WARN"/>
- <logger name="net.fortuna.ical4j" level="WARN"/>
- <logger name="com.alamosgmbh.mavenIcalParsingLibrary" level="INFO"/>
- <logger name="org.apache.http.conn.ssl.SSLConnectionSocketFactory" level="WARN"/>
- <logger name="io.grpc.netty.shaded.io.grpc.netty.NettyClientHandler" level="WARN"/>
- <logger name="io.grpc.netty.shaded.io.netty.channel.DefaultChannelId" level="WARN"/>
- <logger name="io.grpc.netty.shaded.io.netty" level="WARN"/>
- <logger name="com.google.firebase.database.core.view.EventRaiser" level="WARN"/>
- <logger name="org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexCreator" level="ERROR"/>
- <logger name="org.springframework.data.convert.CustomConversions" level="ERROR"/>
+    <appender name="FILE_TETRA" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/Logs/input/TETRA/log.txt</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>/Logs/input/TETRA/log.%d{yyyy-MM-dd}.%i.txt</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy">
+                <!-- or whenever the file size reaches 3MB -->
+                <maxFileSize>3MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
 
-  <root level="info">
-	<appender-ref ref="STDOUT" />
-	<appender-ref ref="FILE" />
-  </root>
+        <encoder>
+            <Pattern>%d{dd.MM.yyyy} - %d{HH:mm:ss.SSS} %-5level |%fe2| [%thread] %logger{0} - %msg%n</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+
+    <logger name="com.hierynomus" level="WARN"/>
+    <logger name="uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J" level="WARN"/>
+    <logger name="org.eclipse.jetty" level="WARN"/>
+    <logger name="org.mongodb.driver" level="WARN"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.mongodb.driver.cluster" level="WARN"/>
+    <logger name="org.apache.http.impl" level="WARN"/>
+    <logger name="org.apache.http.wire" level="WARN"/>
+    <logger name="org.apache.http.headers" level="WARN"/>
+    <logger name="org.apache.http.client" level="WARN"/>
+    <logger name="net.sf.jasperreports" level="WARN"/>
+    <logger name="org.apache.commons.digester" level="WARN"/>
+    <logger name="org.apache.commons.beanutils" level="WARN"/>
+    <logger name="org.apache.fontbox.util.autodetect.FontFileFinder" level="WARN"/>
+    <logger name="org.apache.pdfbox.pdmodel.font.FileSystemFontProvider" level="WARN"/>
+    <logger name="com.google.api.client.util.store.FileDataStoreFactory" level="ERROR"/>
+    <logger name="net.fortuna.ical4j.model.TimeZoneUpdater" level="ERROR"/>
+    <logger name="org.apache.pdfbox.io.ScratchFileBuffer" level="WARN"/>
+    <logger name="com.google.firebase.database.connection" level="WARN"/>
+    <logger name="uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4JInitialiser" level="WARN"/>
+    <logger name="org.eclipse.jetty" level="WARN"/>
+    <logger name="net.fortuna.ical4j" level="WARN"/>
+    <logger name="net.fortuna.ical4j.data.CalendarParserImpl" level="WARN"/>
+    <logger name="com.alamosgmbh.mavenIcalParsingLibrary" level="INFO"/>
+    <logger name="org.apache.http.conn.ssl.SSLConnectionSocketFactory" level="WARN"/>
+    <logger name="io.grpc.netty.shaded.io.grpc.netty.NettyClientHandler" level="WARN"/>
+    <logger name="io.grpc.netty.shaded.io.netty.channel.DefaultChannelId" level="WARN"/>
+    <logger name="io.grpc.netty.shaded.io.netty" level="WARN"/>
+    <logger name="com.google.firebase.database.core.view.EventRaiser" level="WARN"/>
+    <logger name="org.springframework.data.convert.CustomConversions" level="ERROR"/>
+    <logger name="org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexCreator" level="ERROR"/>
+    <logger name="io.getunleash.event.UnleashSubscriber" level="ERROR"/>
+    <logger name="io.micrometer.observation" level="ERROR"/>
+    <!--handle log lines like mongo spring sink lines to be in extra log -->
+    <logger name="de.alamos.fe2.server.vehicleTracking" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC"/>
+    </logger>
+    <!-- handle every internal logging of akka to be only present in extra file-->
+    <logger name="akka." level="WARN" additivity="false">
+        <appender-ref ref="ASYNC"/>
+    </logger>
+
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+    <logger name="TETRA" level="DEBUG" additivity="false">
+        <appender-ref ref="FILE_TETRA"/>
+    </logger>
 </configuration>
