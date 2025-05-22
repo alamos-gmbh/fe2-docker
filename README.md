@@ -67,7 +67,8 @@ We'll make sure that these upgrades work flawlessly.
 4. copy docker-compose.yml.template to docker-compose.yml
 5. copy or move config.env.example to config.env
 6. adjust all variables in config.env
-7. docker-compose up (-d)
+7. Edit the "hostname" property in docker-compose.yml to match your desired hostname. This is important for correct functionality of the system outage function.
+8. docker-compose up (-d)
 
 :warning: Do not forget to change the password of the Admin account. This is the first thing to do upon first login to the web interface :warning:
 
