@@ -57,7 +57,7 @@ A major upgrade can also affect the other containers specified in the `docker-co
 Upgrading from 2.28.**351** to 2.28.**406** by just changing fe2_app's image version followed by a `docker-compose down && docker-compose up -d` is fine.
 We'll make sure that these upgrades work flawlessly.
 
-❗### Important Notice ❗
+### ❗Important Notice ❗
 **Downgrades of FE2 from e.g. 2.36 to 2.35 are NOT POSSIBLE.**
 
 New FE2 versions bring new functions that save new fields and new values in the database. Old FE2 versions do not recognize these new fields and values and can therefore no longer read the data.
