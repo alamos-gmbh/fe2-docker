@@ -58,7 +58,7 @@ Upgrading from 2.28.**351** to 2.28.**406** by just changing fe2_app's image ver
 We'll make sure that these upgrades work flawlessly.
 
 ❗### Important Notice ❗
-<code style="color:red">**Downgrades of FE2 from e.g. 2.36 to 2.35 are NOT POSSIBLE.**</code>
+**Downgrades of FE2 from e.g. 2.36 to 2.35 are NOT POSSIBLE.**
 
 New FE2 versions bring new functions that save new fields and new values in the database. Old FE2 versions do not recognize these new fields and values and can therefore no longer read the data.
 If you want to downgrade an FE2 Docker, you must make a manual backup of the database **BEFORE UPDATING**. This database backup must then be imported before the downgrade is carried out.
