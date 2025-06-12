@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   fe2_database:
-    image: mongo:5.0.29
+    image: mongo:6.0.14
     container_name: fe2_database
     logging:
       driver: none
@@ -13,7 +13,7 @@ services:
       - ./data/fe2/config/database:/data/db
     restart: unless-stopped
   fe2_app:
-    image: alamosgmbh/fe2:2.37-STABLE
+    image: alamosgmbh/fe2:2.38-RC
     container_name: fe2_app
     hostname: CHANGE_ME
     env_file:
