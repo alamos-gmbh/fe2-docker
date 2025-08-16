@@ -16,6 +16,8 @@ services:
     image: alamosgmbh/fe2:2.38-STABLE
     container_name: fe2_app
     hostname: CHANGE_ME
+    environment:
+      - TZ=Europe/Berlin
     env_file:
       - config.env
     ports:
