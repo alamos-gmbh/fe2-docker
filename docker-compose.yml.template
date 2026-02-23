@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   fe2_database:
-    image: mongo:8.0.17
+    image: mongo:8.0.18
     container_name: fe2_database
     logging:
       driver: none
