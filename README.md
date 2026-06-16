@@ -2,15 +2,6 @@
 
 ## Important hints
 ### Support
-:de:
-
-**Dieses Projekt / der Betrieb von FE2 als Docker Container ist ein experimentelles Feature, für das keinerlei Support-Anspruch besteht. Wir freuen uns über Bug-Reports die ins Ticket-System eingestellt werden, sollte ein Fehler auffallen. Allerdings besteht kein Anspruch auf Behebung. Darüber hinaus ist es uns leider unmöglich beim Betrieb der Docker-Umgebung zu unterstützen.**
-
-:raising_hand_man: Dieses Projekt richtet sich an professionelle Nutzer mit fundierten Linux / Docker Kenntnissen.
-
-:us:
-
-**This project / running FE2 as docker container is an experimental feature that comes without any support. When a bug is detected we're happy to know about it as a support ticket, but we cannot assist you with running your docker deployments.**
 
 :raising_hand_man: This project addresses professional users with profound Linux and Docker knowledge.
 
