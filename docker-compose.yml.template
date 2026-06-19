@@ -4,6 +4,10 @@ services:
   fe2_database:
     image: mongo:8.0.26
     container_name: fe2_database
+    # Required to be set, if the linux host uses a kernel >= 6.19. A change in MongoDB 8 (https://jira.mongodb.org/browse/SERVER-121912) introduced a
+    # silent crash.
+    #environment:
+    #  - GLIBC_TUNABLES=glibc.cpu.hwcaps=-SHSTK
     logging:
       driver: none
     ports:
