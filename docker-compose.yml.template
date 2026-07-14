@@ -17,7 +17,7 @@ services:
       - ./data/fe2/config/database:/data/db
     restart: unless-stopped
   fe2_app:
-    image: alamosgmbh/fe2:2.41-BETA
+    image: alamosgmbh/fe2:2.41-STABLE
     container_name: fe2_app
     hostname: CHANGE_ME
     environment:
