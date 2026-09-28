@@ -17,13 +17,23 @@ BACKUP_FOLDER_TO_RESTORE=29-Dec-2022_14-00 #changeme
 
 ########################## Variables end
 
+#### functions start
+
+compose_local() {
+    if [ ${mod_compose_avail} -eq 0 ]; then
+        command docker compose "$@"
+    else
+        command docker-compose "$@"
+    fi
+}
+
+#### functions end
+
 ## determine which docker-compose command to use - start
 docker compose version > /dev/null 2>&1
 mod_compose_avail=$?
 docker-compose version > /dev/null 2>&1
 old_compose_avail=$?
-
-alias compose_local='docker-compose'
 
 if [ ${mod_compose_avail} -eq 1 ] && [ ${old_compose_avail} -eq 1 ];
 then
