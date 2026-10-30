@@ -7,23 +7,9 @@
 
 ### Environment
 
-Running this containers requires a "real" linux environment (either physical or virtual, see below).
-
-We recommend either a real root server or a "pseudo" root server offering dedicated memory and CPU resources.
-
-Many cheap vServers make use of shared resources and might lead to poor user experience / reliability.
-
-:star: For many years we made good experience with [netcup](https://www.netcup.de/vserver/) and their root server offerings.
-They combine the advantages of dedicated root servers with virtual servers. CPU and memory are not shared with other customers, which leads to a very high performance.
-
-[![netcup vservers](https://www.netcup.de/static/assets/images/promotion/netcup-setC-234x60.png)](https://www.netcup.de/vserver/)
-
-Tests were performed on Ubuntu Server 20.04 LTS and 22.04 LTS
-
-The following versions were installed
-- Docker version 20.10.23
-- docker-compose version 1.29.2
-- git version 2.34.1
+The following versions are required
+- Docker Engine 20.10 or newer
+- Docker Compose **v2** (the `docker compose` subcommand, not the standalone `docker-compose` v1 binary)
 
 :bulb: We recommend running Ubuntu Server
 
@@ -45,73 +31,74 @@ A major upgrade can also affect the other containers specified in the `docker-co
 
 :bulb: Upgrades within major releases (aka minor upgrades) are supported, for example:
 
-Upgrading from 2.28.**351** to 2.28.**406** by just changing fe2_app's image version followed by a `docker-compose down && docker-compose up -d` is fine.
+Upgrading from 2.28.**351** to 2.28.**406** by just changing fe2_app's image version followed by a `docker compose down && docker compose up -d` is fine.
 We'll make sure that these upgrades work flawlessly.
-
-### ❗Important Notice ❗
-**Downgrades of FE2 from e.g. 2.36 to 2.35 are NOT POSSIBLE.**
-
-New FE2 versions bring new functions that save new fields and new values in the database. Old FE2 versions do not recognize these new fields and values and can therefore no longer read the data.
-If you want to downgrade an FE2 Docker, you must make a manual backup of the database **BEFORE UPDATING**. This database backup must then be imported before the downgrade is carried out.
-
-To do this
-- stop the FE2 container
-- replace the current database with the backup
-- change the FE2 version in docker-compose.yml
-- start the FE2 container afterwards
-
-A downgrade within an FE2 version (e.g. 2.36.204 to 2.36.158) should work, but without guarantee. If downgrades are necessary, it is **always recommended** to use a database backup from before the upgrade.
 
 ### Using existing Windows configuration
 :window: While it **might** work to copy all files from a windows installation over, it's not supported, so please don't ask for help after doing so.
 
 ## Start via docker-compose.yml
-1. clone the repository to a local folder, e.g. /home/username/docker
-2. cd to fe-docker
-3. copy config.template/data/logback.xml to data/fe2/config/data/
-4. copy docker-compose.yml.template to docker-compose.yml
-5. copy or move config.env.example to config.env
-6. adjust all variables in config.env
-7. Edit the "hostname" property in docker-compose.yml to match your desired hostname. This is important for correct functionality of the system outage function.
-8. docker-compose up (-d)
 
-:warning: Do not forget to change the password of the Admin account. This is the first thing to do upon first login to the web interface :warning:
+All configuration lives directly in `docker-compose.yml`. You can use a `config.env` if you want to.
 
-## SSL Configuration
+1. Copy `docker-compose.yml` to your machine
+2. edit `docker-compose.yml` and adjust every value marked with `# ANPASSEN`:
+   - `fe2_app` -> `hostname`: your desired hostname. This is important for correct functionality of the
+     system outage function.
+   - `fe2_app` -> `FE2_EMAIL` / `FE2_PASSWORD`: the e-mail address and password of your license account
+   - `fe2_app` -> `FE2_ACTIVATION_NAME`: your desired activation name
+3. `docker compose up -d`
 
-SSL encryption can be enabled by changing the variable CERTBOT_ENABLED (false|true) inside `config.env`
+:bulb: FE2's web interface is then published on host port 8083 over plain HTTP. It needs a reverse proxy in front of it - see [Reverse proxy and TLS](#reverse-proxy-and-tls).
 
-There are two possible options:
+## Reverse proxy and TLS
 
-### Running without SSL encryption
+This deployment does **not** contain a reverse proxy and does **not** terminate TLS. FE2's web interface is published on host port **8083** over plain HTTP. Putting a proxy in front of it, and obtaining and renewing certificates, is the operator's responsibility.
 
-When `CERTBOT_ENABLED` is set to `false`, the webserver is reachable on port 80 (default, unless changed in `docker-compose.yml`)
-Use this scenario for testing and if SSL termination will be handled by another webserver already installed (nginx, traefik, apache, haproxy, etc.)
+:warning: Port 8083 speaks unencrypted HTTP, including the login form, and is published on **all** interfaces. UFW or iptables does not prevent access - docker bypasses them, the same behaviour described under "Emergency access" below. Make sure a firewall appliance or your network design keeps this port away from untrusted networks, and never expose it to the internet directly.
 
-If port 80 is already in use, another one (not already in use; check with netstat) can be chosen inside `docker-compose.yml`
+:bulb: If your reverse proxy runs directly on the same docker host, restrict the binding to loopback in `docker-compose.yml`. The port is then unreachable from the network and the warning above no longer applies:
 
-### Running with SSL encryption enabled
+```yaml
+    ports:
+      - "127.0.0.1:8083:83"
+```
 
-When `CERTBOT_ENABLED` is set to `true`, the webserver is reachable on port 443 (and 80, but http will be redirected to https automatically).
+A proxy running in its own container cannot use this: `127.0.0.1` there is the proxy container's own loopback, not the host's. Such a setup needs the docker host's address, and the port has to stay published on all interfaces.
 
-The following prerequisites must be met:
+### What your proxy has to do
 
-- Unbound ports 80 / 443 locally -> no other process may be running using one of these ports. Check with `netstat -tulpn | grep LISTEN | grep -E ':80|:443'`
-- :warning: Ports 80 + 443 must not be changed in `docker-compose.yml`, they must be left unchanged, otherwise let's encrypt won't work
-- Valid DNS A record pointing to the hosts public IP address, e.g. fe2.meinefeuerwehr.de
-- Ports 80 and 443 reachable from outside (port forwarding if required, firewall exception (type TCP), etc.) Although http will be redirected to https when accessing FE2 web interface, port 80 must remain open all the time for let's encrypt (periodic certificate renewal task).
+FE2 keeps a websocket connection open for live updates. Two things follow from that, and both are easy to miss:
 
-This DNS A record must be configured inside `config.env` file as variable `CERTBOT_DOMAIN`. Moreover a valid email address must be configured for let's encrypt information emails as variable `CERTBOT_EMAIL`.
+1. The `Upgrade` and `Connection` headers have to be forwarded to FE2.
+2. Idle connections must not be cut after the usual 60 seconds - raise the read timeout well beyond that.
 
-:warning: Do not enter a dummy address here. Let's encrypt will only send important information.
+Get either wrong and the web interface reconnects over and over.
 
-:hourglass: After starting an SSL enabled FE2 docker instance for the first time, it takes about 15-30 minutes to generate encryption specific parameters (DH parameters). This is normal. The progress can be visualized using `docker logs -f fe2_nginx`
+:bulb: If you would rather not hand-write a proxy configuration, [Nginx Proxy Manager](https://nginxproxymanager.com/) is a common choice. It runs as a container, terminates TLS and takes care of Let's Encrypt certificates including renewal, all from its web UI. Point a proxy host at the docker host's address on port 8083. The one FE2-specific setting is the **Websockets Support** switch in the proxy host - make sure it is on.
 
-:bulb: During this time, the FE2 web interface won't be accessible.
+nginx, traefik, Caddy, apache, haproxy or a hardware appliance all work, as long as those two points are covered.
+
+### Migrating from a release that shipped nginx
+
+Earlier releases of this repository contained an `fe2_nginx` service that terminated TLS via Let's Encrypt. When upgrading from one of those:
+
+1. Set up your own reverse proxy **before** switching over. Otherwise FE2 is only reachable over plain HTTP on port 8083 in the meantime.
+2. `docker compose down` with the old file, then `git pull`, then `docker compose up -d`. Ports 80 and 443 are no longer bound by this deployment and are free for your proxy.
+3. The `fe2_nginx` container and its locally built image are no longer part of the project. If either lingers, remove it: `docker rm -f fe2_nginx` and `docker image rm <old fe2_nginx image>`
+4. `data/certbot/` still holds the old Let's Encrypt account, certificates and private keys. Nothing reads it any more. Either reuse those certificates in your own proxy or delete the directory.
 
 ## Emergency access to the FE2 http port (via 64112)
 
-When you're locked out, emergency access to FE2 is possible via port 64112 after activation in `docker-compose.yml`. Change the line - 64112 to - "64112:64112" (port mapping for the fe2_app service NOT fe2_nginx) save and restart with `docker-compose down && docker-compose up -d`
+When you're locked out, emergency access to FE2 is possible via port 64112 after activation in `docker-compose.yml`. In the `fe2_app` service, uncomment the `64112` entry inside the existing `ports:` block:
+
+```yaml
+    ports:
+      - "8083:83"
+      - "64112:64112"
+```
+
+Save and restart with `docker compose down && docker compose up -d`
 
 Open a browser of your choice and navigate to http://{DOCKER_HOST_IP}:64112
 
@@ -135,27 +122,30 @@ The following must be configured for multiple FE2 docker containers on the same 
 
 One possible scenario among others: Create a new directory for each deployment and checkout the git repository to each, then setup the following:
 
-- **Unique activation names:** `config.env`: Use a unique `FE2_ACTIVATION_NAME` variable for each deployment. This is necessary for activation purposes.
-- **SSL:** `config.env`: The variable `CERTBOT_ENABLED` must be set to `false` (or at most 1 container is allowed to run with certbot enabled using default ports 80 + 443)
+- **Unique activation names:** `docker-compose.yml`: Use a unique `FE2_ACTIVATION_NAME` variable for each deployment. This is necessary for activation purposes.
 - **Unique container names:** In each `docker-compose.yml` every contained `container_name` declaration must be adjusted to a UNIQUE name, e.g. 
   - fe2_database -> fe2_database_2
   - fe2_app -> fe2_app_2
-  - fe2_nginx -> fe2_nginx_2
   
-  otherwise `docker-compose up / down` calls will interfere and stop unintended containers. 
+  otherwise `docker compose up / down` calls will interfere and stop unintended containers. 
   
   Suggestion: Rename every `container_name` inside the first `docker-compose.yml` file to '_1', inside the second compose file to '_2', etc. Check with `docker ps` that all intended containers are running, using the adjusted container names.
-- **Unique port combinations:** In each `docker-compose.yml` file, setup a unique port combination, for example:
-  - First container: 
-    - "80:80" 
-    - "443:443"
-  - Second container:
-    - "81:80" 
-    - "444:443"
-  - Third container:
-    - "82:80"
-    - "445:443"
+- **Unique host ports:** In each `docker-compose.yml` file, publish the FE2 web interface on a unique host port, for example:
+  - First container: `"8083:83"`
+  - Second container: `"8084:83"`
+  - Third container: `"8085:83"`
   - etc.
 
-  The left hand side of the port definition must be not already in use by the system (check with netstat; see above), thus in our example the ports 80-82;443-445 must NOT already be used by any process of the system.
+  The left hand side of the port definition must not already be in use by the system (check with netstat; see above). If you also enable the emergency port, it needs a unique host port per deployment too, e.g. `"64112:64112"`, `"64113:64112"`, etc. Your reverse proxy then targets one host port per FE2 instance.
 
+## Development
+
+Development of this project happens in Alamos' internal GitLab instance. This GitHub repository is a
+**mirror**, published from the internal pipeline after its checks pass.
+
+The mirror publishes snapshots, so one commit here can correspond to several internal commits, and internal
+build configuration is not part of this repository. History here is append-only - `git clone` and `git pull`
+work as usual.
+
+Changes pushed or merged here on GitHub are overwritten by the next mirror run. If you want to report a
+problem or suggest a change, please open an issue here and we will pick it up internally.

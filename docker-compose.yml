@@ -1,0 +1,103 @@
+# FE2 Docker Deployment
+#
+#
+# Anzupassen sind:
+#   - fe2_app: hostname, FE2_EMAIL, FE2_PASSWORD, FE2_ACTIVATION_NAME
+#
+# Dieses Deployment enthaelt KEINEN Reverse-Proxy und terminiert KEIN TLS. Die
+# FE2-Weboberflaeche wird unverschluesselt auf dem Host-Port 8083 bereitgestellt;
+# ein Proxy davor ist Sache des Betreibers. Siehe README.md, Abschnitt
+# "Reverse proxy and TLS".
+#
+# Achtung: lokale Aenderungen an dieser Datei kollidieren mit einem spaeteren
+# `git pull`. Siehe README.md, Abschnitt "Start via docker-compose.yml".
+
+services:
+  fe2_database:
+    image: mongo:8.0.32
+    container_name: fe2_database
+    # Required to be set, if the linux host uses a kernel >= 6.19. A change in MongoDB 8
+    # (https://jira.mongodb.org/browse/SERVER-121912) introduced a silent crash.
+    #environment:
+    #  - GLIBC_TUNABLES=glibc.cpu.hwcaps=-SHSTK
+    # Nur im Docker-Netz erreichbar - die Datenbank braucht keinen Host-Port.
+    expose:
+      - 27017
+    volumes:
+      - ./data/fe2/config/database/configdb:/data/configdb
+      - ./data/fe2/config/database:/data/db
+    restart: unless-stopped
+    networks:
+      - mongonet
+    # Begrenzte Container-Logs statt unbegrenztem Wachstum.
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    healthcheck:
+      test: mongosh --quiet --eval 'db.adminCommand("ping").ok' || exit 1
+      interval: 30s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  fe2_app:
+    image: alamosgmbh/fe2:2.42-STABLE
+    container_name: fe2_app
+    # ANPASSEN: wird von der Systemausfall-Funktion verwendet.
+    hostname: CHANGE_ME
+    environment:
+      - TZ=Europe/Berlin
+      # ANPASSEN: Lizenz-E-Mail-Adresse
+      - FE2_EMAIL=alamos@feuerwehr.beispiel
+      # ANPASSEN: Passwort des Lizenz-Accounts
+      - FE2_PASSWORD=CHANGE_ME
+      # ANPASSEN: gewuenschter Aktivierungsname
+      - FE2_ACTIVATION_NAME=fe2_master
+      # Die nachfolgenden Werte muessen in der Regel nicht angepasst werden.
+      - FE2_IP_MONGODB=fe2_database
+      - FE2_PORT_MONGODB=27017
+      # Log-Level nur bei Bedarf einkommentieren (debug|info|warn|error).
+      #- FE2_LOG_LEVEL=debug
+    ports:
+      # FE2-Weboberflaeche. Diesen Port spricht der Reverse-Proxy des Betreibers an.
+      #
+      # ACHTUNG: der Port ist auf allen Interfaces veroeffentlicht und liefert
+      # unverschluesseltes HTTP aus - inklusive der Anmeldemaske. Docker umgeht
+      # UFW/iptables, eine Host-Firewall schuetzt ihn also NICHT (siehe README.md).
+      # Laeuft der Proxy auf demselben Host, stattdessen "127.0.0.1:8083:83"
+      # verwenden.
+      - "8083:83"
+      # Notzugang zur FE2-Weboberflaeche unter http://{DOCKER_HOST_IP}:64112.
+      # Nur einkommentieren, wenn benoetigt - siehe README.md ("Emergency access").
+      #- "64112:64112"
+    volumes:
+      - ./data/fe2/logs:/Logs
+      - ./data/fe2/config:/Config
+      - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro
+      # please check host machine's timezone + localtime otherwise calendar will display wrong times
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    networks:
+      - mongonet
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    healthcheck:
+      test: curl --fail http://localhost:83/ || exit 1
+      interval: 60s
+      retries: 3
+      start_period: 60s
+      timeout: 10s
+    depends_on:
+      fe2_database:
+        condition: service_healthy
+
+networks:
+  # FE2 <-> MongoDB.
+  mongonet:
+    driver: bridge

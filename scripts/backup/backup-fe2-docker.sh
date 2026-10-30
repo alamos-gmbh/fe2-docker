@@ -36,38 +36,18 @@ fi
 
 }
 
-compose_local() {
-    if [ ${mod_compose_avail} -eq 0 ]; then
-        command docker compose "$@"
-    else
-        command docker-compose "$@"
-    fi
-}
-
 #### functions end
 
-## determine which docker-compose command to use - start
-docker compose version > /dev/null 2>&1
-mod_compose_avail=$?
-docker-compose version > /dev/null 2>&1
-old_compose_avail=$?
-
-if [ ${mod_compose_avail} -eq 1 ] && [ ${old_compose_avail} -eq 1 ];
-then
-  echo "No compatible docker-compose (docker compose) command found. Cannot continue!"
+## Docker Compose v2 wird vorausgesetzt. Das klassische "docker-compose" (v1)
+## wird nicht mehr unterstuetzt - siehe README, Abschnitt "Environment".
+if ! docker compose version > /dev/null 2>&1; then
+  ERR_MSG="Docker Compose v2 nicht gefunden - 'docker compose version' schlaegt fehl. Das klassische 'docker-compose' (v1) wird nicht mehr unterstuetzt. Cannot continue with backup."
+  echo "ERROR: $ERR_MSG"
+  sendMail "[Error] FE2 Docker Backup: $SYSTEM_NAME" "$ERR_MSG"
   exit 1
 fi
 
-if [ ${mod_compose_avail} -eq 1 ];
-then
-  echo "Modern docker compose command NOT available. Using classic docker-compose for execution."
-else
-  echo "Modern docker compose command available. Using it for execution."
-fi
-
-echo "Using docker compose:" `compose_local version`
-
-## determine which docker-compose command to use - end
+echo "Using $(docker compose version)"
 
 EXECUTION_TIME=$(date +'%d-%b-%Y_%H-%M')
 TARGET_DIR=$BACKUP_DIR/$EXECUTION_TIME
@@ -89,14 +69,14 @@ fi
 
 echo "Executing FE2 docker backup at $EXECUTION_TIME"
 
-cd $FE2_DOCKER_DIR
+cd "$FE2_DOCKER_DIR" || exit 1
 echo ">>> Backing up database <<<"
-compose_local exec -T $DB_SVC_NAME sh -c 'mongodump --gzip --archive' > $TARGET_DIR/fe2-dump.gz
+docker compose exec -T $DB_SVC_NAME sh -c 'mongodump --gzip --archive' > $TARGET_DIR/fe2-dump.gz
 
 DB_DUMP_EXIT_CODE=$?
 
-cd -
-echo "Now running in `pwd`"
+cd - > /dev/null || exit 1
+echo "Now running in $(pwd)"
 
 echo ">>> Backing up files <<<"
 rsync -auv --exclude-from=$RSYNC_IGNORE_FILE $FE2_DOCKER_DIR/ $TARGET_DIR_DATA
@@ -106,8 +86,8 @@ echo ">>> Cleaning up. Keeping only $BACKUP_VERSION_COUNT versions <<<"
 TAIL_CNT=$(($BACKUP_VERSION_COUNT + 1))
 
 #tail count must be plus 1
-cd $BACKUP_DIR
-ls $BACKUP_DIR -t | tail -n +$TAIL_CNT | xargs rm -rfv
+cd "$BACKUP_DIR" || exit 1
+ls "$BACKUP_DIR" -t | tail -n +$TAIL_CNT | xargs rm -rfv
 
 CLEANUP_EXIT_CODE=$?
 
