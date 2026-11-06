@@ -1,2 +1,0 @@
-#!/bin/sh
-certbot renew --webroot --webroot-path /var/lib/certbot --post-hook "/usr/sbin/nginx -s reload" 
