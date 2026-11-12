@@ -14,7 +14,7 @@
 
 services:
   fe2_database:
-    image: mongo:8.0.34
+    image: mongo:8.0.28
     container_name: fe2_database
     # Required to be set, if the linux host uses a kernel >= 6.19. A change in MongoDB 8
     # (https://jira.mongodb.org/browse/SERVER-121912) introduced a silent crash.
@@ -26,9 +26,25 @@ services:
     volumes:
       - ./data/fe2/config/database/configdb:/data/configdb
       - ./data/fe2/config/database:/data/db
+    # Startet die Datenbank nach einem Absturz und nach einem Reboot neu - ausser,
+    # sie wurde bewusst gestoppt: ein "docker compose stop" bleibt bestehen.
     restart: unless-stopped
+    # Alternative: "always" startet den Container nach einem Reboot bzw. Neustart
+    # des Docker-Daemons auch dann wieder, wenn er vorher bewusst gestoppt wurde.
+    # Nur sinnvoll, wenn ein Stopp nie ueber einen Reboot hinaus gelten soll (z.B.
+    # ungewollt gestoppte Container auf unbeaufsichtigten Hosts). Dauerhaft aus
+    # bleibt der Container dann nur per "docker compose down".
+    #restart: always
+    # Zeit zum sauberen Herunterfahren, bevor Docker hart beendet (Standard: 10s).
+    stop_grace_period: 60s
     networks:
       - mongonet
+    # Hohes Limit fuer offene Dateien: Der Docker-Default kann bei 1024 liegen, dann
+    # bricht z.B. ein mongorestore mit "Too many open files" (WiredTiger error 24) ab.
+    ulimits:
+      nofile:
+        soft: 64000
+        hard: 64000
     # Begrenzte Container-Logs statt unbegrenztem Wachstum.
     logging:
       driver: json-file
@@ -47,6 +63,9 @@ services:
     container_name: fe2_app
     # ANPASSEN: wird von der Systemausfall-Funktion verwendet.
     hostname: CHANGE_ME
+    # Java laeuft nicht als PID 1: ein schlanker Init-Prozess leitet Signale
+    # weiter und raeumt beendete Prozesse (z.B. der Healthchecks) auf.
+    init: true
     environment:
       - TZ=Europe/Berlin
       # ANPASSEN: Lizenz-E-Mail-Adresse
@@ -58,6 +77,9 @@ services:
       # Die nachfolgenden Werte muessen in der Regel nicht angepasst werden.
       - FE2_IP_MONGODB=fe2_database
       - FE2_PORT_MONGODB=27017
+      # Bei einem Speicherfehler beendet sich die JVM sofort, statt halb
+      # funktionsfaehig weiterzulaufen. Docker startet FE2 dann neu.
+      - JAVA_TOOL_OPTIONS=-XX:+ExitOnOutOfMemoryError
       # Log-Level nur bei Bedarf einkommentieren (debug|info|warn|error).
       #- FE2_LOG_LEVEL=debug
     ports:
@@ -79,7 +101,15 @@ services:
       # please check host machine's timezone + localtime otherwise calendar will display wrong times
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+    # Startet FE2 nach einem Absturz (z.B. ExitOnOutOfMemoryError) und nach einem
+    # Reboot neu - ausser, FE2 wurde bewusst gestoppt: ein "docker compose stop"
+    # bleibt bestehen.
     restart: unless-stopped
+    # Alternative: "always" - siehe Kommentar bei fe2_database und README.md
+    # ("Restart behaviour").
+    #restart: always
+    # FE2 braucht zum sauberen Herunterfahren laenger als Dockers Standard (10s).
+    stop_grace_period: 60s
     networks:
       - mongonet
     logging:

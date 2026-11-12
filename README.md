@@ -106,6 +106,16 @@ Open a browser of your choice and navigate to http://{DOCKER_HOST_IP}:64112
 
 :warning: This exposes port 64112. If no firewall appliance prevents access, the port will be publicly accessible. UFW or iptables firewall does not prevent access (unless explicitly configured, docker bypasses UFW / iptables). More info about that behavior can be found [here](https://www.techrepublic.com/article/how-to-fix-the-docker-and-ufw-security-flaw/).
 
+## Restart behaviour
+
+Both containers use `restart: unless-stopped`. Docker restarts them whenever they exit and starts them again after a reboot of the docker host or a restart of the docker daemon - unless they were stopped deliberately (e.g. `docker compose stop`). A stopped container stays stopped.
+
+Alternatively, `restart: always` (commented out in `docker-compose.yml`) also starts containers again after a reboot or docker daemon restart if they were stopped before. This only makes sense if a stop should never outlast a reboot, e.g. on unattended hosts. With `always`, `docker compose stop` only stops the containers until the next reboot or docker daemon restart - to keep FE2 off, use `docker compose down` instead.
+
+If FE2 runs out of memory, the JVM exits immediately (`-XX:+ExitOnOutOfMemoryError` in `JAVA_TOOL_OPTIONS`) instead of continuing in a partly working state, and docker restarts it. Both containers get 60 seconds to shut down cleanly (`stop_grace_period`) before docker kills them.
+
+:bulb: Docker does **not** restart a container whose health check reports `unhealthy`. Detecting and handling that requires external monitoring.
+
 ## Backup Scripts
 Inside 'scripts/backup' several files can be found to perform backup and restore tasks. A cron example is also contained. Copy all files locally, including 'rsync_ignore.txt'. Afterwards follow the instructions inside the scripts to get started.
 
